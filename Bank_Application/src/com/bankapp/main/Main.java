@@ -1,4 +1,4 @@
-package com.suryanbank.main;
+package com.bankapp.main;
 
 import java.util.Scanner;
 
