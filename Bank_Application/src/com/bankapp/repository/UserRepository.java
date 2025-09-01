@@ -4,6 +4,7 @@ import com.bankapp.entity.User;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserRepository {
 
@@ -45,5 +46,24 @@ public class UserRepository {
         } else {
             return null;
         }
+    }
+
+    public boolean addCustomer(String username, String password, String contactNumber){
+        User user = new User(username, password, contactNumber, "user", 0.0);
+        return users.add(user);
+    }
+
+    public Double checkBalance(String username) {
+        List<User> result = users
+                .stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(username))
+                .toList();
+        if(!result.isEmpty()){
+            return result.get(0).getAccountBalance();
+        }else{
+            return null;
+        }
+
+
     }
 }
