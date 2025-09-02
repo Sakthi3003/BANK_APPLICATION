@@ -70,6 +70,14 @@ public class Transaction {
         this.finalBalance = finalBalance;
     }
 
+    public String getTransactionPerformedBy() {
+        return transactionPerformedBy;
+    }
+
+    public void setTransactionPerformedBy(String transactionPerformedBy) {
+        this.transactionPerformedBy = transactionPerformedBy;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +

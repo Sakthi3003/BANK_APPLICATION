@@ -4,10 +4,7 @@ import com.bankapp.entity.Transaction;
 import com.bankapp.entity.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UserRepository {
 
@@ -17,6 +14,8 @@ public class UserRepository {
     private static Set<User> users = new HashSet<>();
 
     private static List<Transaction>  transactions = new ArrayList<>();
+
+    private static Map<String, Boolean> chechbookRequest = new HashMap<>();
 
 
     // Using static block to initialize users
@@ -134,5 +133,42 @@ public class UserRepository {
 
         transactions.add(transaction);
         return users.add(payee);
+    }
+
+    public void seeAllTransactionHistory(String username) {
+        List<Transaction> transactionList = transactions
+                .stream()
+                .filter(transaction -> transaction.getTransactionPerformedBy().equals(username))
+                .toList();
+
+        transactionList.forEach(System.out::println);
+    }
+
+    public void showAllTransaction() {
+        transactions.forEach(System.out::println);
+    }
+
+    public void raiseCheckBookRequest(String userId){
+        chechbookRequest.put(userId, false);
+    }
+
+    public Map<String, Boolean> getAllCheckBookRequest(){
+        return chechbookRequest;
+    }
+
+    public List<String> getAllUserIdForCheckBookRequestApproval() {
+        List<String>  userIds = new ArrayList<>();
+        for(Map.Entry<String, Boolean> request : chechbookRequest.entrySet()){
+            if(!request.getValue()){
+                userIds.add(request.getKey());
+            }
+        }
+        return userIds;
+    }
+
+    public void approveCheckBookRequest(String userID){
+        if(chechbookRequest.containsKey(userID)){
+            chechbookRequest.put(userID, true);
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.bankapp.entity.User;
 import com.bankapp.service.UserService;
 import com.bankapp.util.InputValidator;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -42,6 +44,9 @@ public class Main {
         while(isRunning) {
             System.out.println("1. Exit/Logout");
             System.out.println("2. Create a customer account");
+            System.out.println("3. See All Transactions");
+            System.out.println("4. See Specific Transactions");
+            System.out.println("5. Approve check book request");
 
             int selectedOptions = scan.nextInt();
             scan.nextLine();
@@ -52,9 +57,32 @@ public class Main {
                     break;
                 }
                 case 2 -> addNewCustomer();
+                case 3 -> showAllTransaction();
+                case 4 -> main.seeAllTransactionHistory();
+                case 5 -> {
+                    List<String> userIDs= getAllUserIdForCheckBookRequestApproval();
+                    System.out.println(userIDs);
+                    System.out.println("Enter id : ");
+                    String id = scan.next();
+                    approveCheckBookRequest(id);
+
+                }
                 default -> System.out.println("Invalid choice");
             }
         }
+    }
+
+    public void approveCheckBookRequest(String userID){
+        userService.approveCheckBookRequest(userID);
+    }
+
+    private List<String> getAllUserIdForCheckBookRequestApproval(){
+       return  userService.getAllUserIdForCheckBookRequestApproval();
+    }
+
+
+    private void showAllTransaction() {
+        userService.showAllTransaction();
     }
 
     private void initUser(User user){
@@ -64,7 +92,8 @@ public class Main {
             System.out.println("1. Exit/Logout");
             System.out.println("2. Check Balance");
             System.out.println("3. Fund Transfer");
-            
+            System.out.println("4. See All Transaction History");
+            System.out.println("5. Raise Cheque book Request ");
 
             int selectedOptions = scan.nextInt();
             scan.nextLine();
@@ -83,10 +112,37 @@ public class Main {
                     break;
                 }
                 case 3 -> main.transferFund(user);
+                case 4 -> main.seeAllTransactionHistory();
+                case 5 -> {
+                    Map<String, Boolean> request = getAllCheckBookRequest();
+                    if(request.containsKey(user.getUsername()) && request.get(user.getUsername())){
+                        System.out.println("Your Request for Checkbook is raise and approved");
+                    }else if(request.containsKey(user.getUsername()) && request.get(user.getUsername())){
+                        System.out.println("Your Request for Checkbook is raised and pending");
+                    }else{
+                        raiseCheckBookRequest(user.getUsername());
+                        System.out.println("Raised request for checkbook");
+                    }
+                    main.raiseCheckBookRequest(user.getUsername());
+                }
                 default -> System.out.println("Invalid choice");
             }
         }
 
+    }
+
+    public Map<String, Boolean> getAllCheckBookRequest(){
+       return userService.getAllCheckBookRequest();
+    }
+
+    private void raiseCheckBookRequest(String userId) {
+
+        userService.raiseCheckBookRequest(userId);
+    }
+
+    private void seeAllTransactionHistory() {
+        String name = InputValidator.validateString(scan, "Enter id : ");
+        userService.seeAllTransactionHistory(name);
     }
 
     private void transferFund(User payer) {
