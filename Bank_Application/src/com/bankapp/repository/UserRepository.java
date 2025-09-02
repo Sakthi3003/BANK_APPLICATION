@@ -1,10 +1,13 @@
 package com.bankapp.repository;
 
+import com.bankapp.entity.Transaction;
 import com.bankapp.entity.User;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class UserRepository {
 
@@ -12,6 +15,8 @@ public class UserRepository {
     // because each user should be unique in the system.
     // A HashSet is chosen for efficient lookup and insertion operations (O(1) average time).
     private static Set<User> users = new HashSet<>();
+
+    private static List<Transaction>  transactions = new ArrayList<>();
 
 
     // Using static block to initialize users
@@ -60,10 +65,74 @@ public class UserRepository {
                 .toList();
         if(!result.isEmpty()){
             return result.get(0).getAccountBalance();
-        }else{
+        }else {
             return null;
         }
+    }
+
+    public User getUser(String userId){
+        List<User> list = users
+                .stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(userId))
+                .toList();
+
+        return !users.isEmpty() ? list.get(0) : null;
+    }
+
+    public boolean transferFunds(String payerName, String payeeName, Double amount) {
+        boolean isDebited = debit(payerName, amount, payeeName);
+        boolean isCredited = credit(payeeName, amount, payerName);
+
+        System.out.println(transactions);
+
+        return isDebited && isCredited;
+    }
+
+    public boolean debit(String payerName, double amount, String payeeName){
+        User payer = getUser(payerName);
+
+        double accountBalance = payer.getAccountBalance();
+        users.remove(payer);
+
+        double updatedBalance = accountBalance - amount;
+        payer.setAccountBalance(updatedBalance);
+
+        Transaction transaction = new Transaction(
+                LocalDate.now(),
+                payeeName,
+                amount,
+                "debit",
+                accountBalance,
+                updatedBalance,
+                payerName
+        );
+
+        transactions.add(transaction);
 
 
+        return users.add(payer);
+    }
+
+    public boolean credit(String payeeName, double amount, String payerName){
+        User payee = getUser(payeeName);
+
+        double accountBalance = payee.getAccountBalance();
+        users.remove(payee);
+
+        double updatedBalance = accountBalance + amount;
+        payee.setAccountBalance(updatedBalance);
+
+        Transaction transaction = new Transaction(
+                LocalDate.now(),
+                payerName,
+                amount,
+                "credit",
+                accountBalance,
+                updatedBalance,
+                payeeName
+        );
+
+        transactions.add(transaction);
+        return users.add(payee);
     }
 }

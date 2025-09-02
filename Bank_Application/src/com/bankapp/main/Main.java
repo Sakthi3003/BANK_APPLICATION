@@ -2,6 +2,7 @@ package com.bankapp.main;
 
 import com.bankapp.entity.User;
 import com.bankapp.service.UserService;
+import com.bankapp.util.InputValidator;
 
 import java.util.Scanner;
 
@@ -10,14 +11,16 @@ public class Main {
     private static final Scanner scan = new Scanner(System.in);
     private static final Main main = new Main();
     private static final UserService userService = new UserService();
+
     public static void main(String[] args) {
 
         while(true) {
-            System.out.print("Enter username : ");
-            String username = scan.nextLine();
-
-            System.out.print("Enter password : ");
-            String password = scan.nextLine();
+            System.out.println("***********************************");
+            System.out.println("Welcome to the Banking Application");
+            System.out.println("***********************************");
+            String username = InputValidator.validateString(scan, "Enter username : ");
+            
+            String password = InputValidator.validateString(scan, "Enter username : ");
 
             User user = userService.login(username, password);
 
@@ -60,6 +63,8 @@ public class Main {
         while(isRunning) {
             System.out.println("1. Exit/Logout");
             System.out.println("2. Check Balance");
+            System.out.println("3. Fund Transfer");
+            
 
             int selectedOptions = scan.nextInt();
             scan.nextLine();
@@ -77,14 +82,45 @@ public class Main {
                     System.out.println("Check your Username and try again");
                     break;
                 }
+                case 3 -> main.transferFund(user);
                 default -> System.out.println("Invalid choice");
             }
         }
 
     }
 
-    private void checkBalance(String username) {
-        userService.checkBalance(username);
+    private void transferFund(User payer) {
+        String payeeName = InputValidator.validateString(scan, "Enter payee user id : ");
+
+        User payee = userService.getUser(payeeName);
+        if(payee != null){
+            System.out.println("Enter Amount to transfer : ");
+            double amount = scan.nextDouble();
+
+            double payerBalance = checkBalance(payer.getUsername());
+
+            if(payerBalance >= amount){
+                Boolean isTransferSuccessful = userService.transferFunds(payer.getUsername(), payee.getUsername(), amount);
+                if(isTransferSuccessful){
+                    System.out.println("Transaction success");
+                }else{
+                    System.out.println("Transaction failed");
+                }
+            }else{
+                System.out.println("Insufficient funds");
+            }
+
+        }else{
+            System.out.println("Payee account not found");
+        }
+    }
+
+    private void getUser(String userId){
+        userService.getUser(userId);
+    }
+
+    private double checkBalance(String username) {
+        return userService.checkBalance(username);
     }
 
     public void addNewCustomer(){

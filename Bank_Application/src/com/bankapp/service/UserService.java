@@ -21,4 +21,12 @@ public class UserService {
     public Double checkBalance(String username) {
         return userRepository.checkBalance(username);
     }
+
+    public User getUser(String userId){
+        return userRepository.getUser(userId);
+    }
+
+    public Boolean transferFunds(String payerName, String payeeName, Double amount) {
+        return userRepository.transferFunds(payerName, payeeName, amount);
+    }
 }
